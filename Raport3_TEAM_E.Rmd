@@ -246,7 +246,11 @@ dane %>%
 **CHALLENGE 1:** Jaki jest najstarszy film Woody'ego Allena dostępny na Netflixie?
 
 ```{r 21, eval=FALSE}
-# miejsce na kod
+dane %>%
+  filter(Director == "Woody Allen") %>%
+  select(Director, Title, Release.Date) %>%
+  arrange(mdy(Release.Date)) %>%
+  head(1)
 ```
 
 
@@ -406,7 +410,12 @@ dane %>%
 
 
 ```{r 34, eval=FALSE}
-# miejsce na kod
+dane %>%
+  select(Title, Genre, Languages, IMDb.Score) %>%
+  arrange(desc(IMDb.Score)) %>%
+  filter(grepl('Polish', Languages)) %>%
+  filter(Genre=='Comedy') %>%
+  head(3)
 ```
 
 
@@ -415,7 +424,13 @@ dane %>%
 
 
 ```{r 35, eval=FALSE}
-# miejsce na kod
+dane %>%
+  select(Title, Release.Date, Netflix.Release.Date) %>%
+  mutate(Release = as.Date(Release.Date, "%m/%d/%Y"), 
+         Netflix.Release = as.Date(Netflix.Release.Date, "%m/%d/%Y")) %>%
+  filter(Release >= as.Date("2019-01-01") & Release <= as.Date("2020-12-31")) %>%
+  mutate(Czas.pomiedzy = Netflix.Release-Release) %>%
+  summarize(mean(Czas.pomiedzy))
 ```
 
 
@@ -423,7 +438,13 @@ dane %>%
 
 
 ```{r 36, eval=FALSE}
-# miejsce na kod
+dane %>%
+  select(Title, Tags, Languages) %>%
+  filter(grepl('Polish', Languages)) %>%
+  separate_rows(Tags, sep = ",") %>%
+  group_by(Tags) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
 ```
 
 
@@ -458,7 +479,22 @@ dane %>%
 
 
 ```{r 39, eval=FALSE}
-# miejsce na kod
+dane %>%
+  select(Title, Release.Date, ends_with("Score")) %>%
+  mutate(
+    Release.Date = as.Date(Release.Date, format="%d/%m/%Y"),
+    Decade = floor(year(Release.Date)/10)*10,
+    Year = year(Release.Date)
+  ) %>%
+  filter(Release.Date > as.Date("1/1/1960", "%d/%m/%Y"),
+         !is.na(Decade)) %>%
+  group_by(Decade) %>%
+    summarize(
+      Avg_IMDb = mean(IMDb.Score, na.rm = TRUE),
+      Avg_Metascore = mean(Metacritic.Score, na.rm = TRUE),
+      Avg_Rotten_Tomatoes = mean(Rotten.Tomatoes.Score, na.rm = TRUE),
+      Avg_Hidden_Gem = mean(Hidden.Gem.Score, na.rm = TRUE),
+    )
 ```
 
 
